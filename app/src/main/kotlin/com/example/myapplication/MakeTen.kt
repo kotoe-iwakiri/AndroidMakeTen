@@ -6,17 +6,21 @@ object MakeTen {
 
     fun canMake(a: Int, b: Int, c: Int, d: Int): Boolean {
         val numPermutation = listOf(a, b, c, d).permutations().toList()
+        println("numPermutation.size = ${numPermutation.size}")
         val orderPermutation = listOf(1, 2, 3).permutations().toList()
+        println("orderPermutation.size = ${orderPermutation.size}")
         val operatorPermutation = operatorPermutation
-        val results =
+        println("operatorPermutation.size = ${operatorPermutation.size}")
+        val rpns =
                 numPermutation.flatMap { nums ->
                     orderPermutation.flatMap { orders ->
                         operatorPermutation.map { op ->
-                            eval(nums, orders, op)
+                            makeRpn(nums, orders, op)
                         }
                     }
-                }
-        return results.contains(Rational(10, 1))
+                }.distinct()
+        println("rpns.size = ${rpns.size}")
+        return rpns.asSequence().any { solveRpn(it) == Rational(10, 1) }
     }
 
     fun <T : Any> List<T>.permutations(): Sequence<List<T>> = if (size == 1) sequenceOf(this) else {
@@ -44,11 +48,10 @@ object MakeTen {
                 }
             }
 
-    fun eval(nums: List<Int>, orders: List<Int>, ops: List<String>): Rational? = solveRpn(makeRpn(nums, orders, ops))
-
     fun makeRpn(nums: List<Int>, orders: List<Int>, ops: List<String>): List<String> =
             (orders zip ops).fold(nums.map { n -> n.toString() }) { acc, (order, op) ->
-                val i = index(acc, { s: String -> s.matches(Regex("""\d""")) }, order)
+//                val i = index(acc, { s: String -> s.matches(Regex("""\d""")) }, order)
+                val i = index(acc, { s: String -> !operators.contains(s) }, order)
                 if (acc.drop(i).any { it.isOperator() })
                     acc.insert(op, acc.indexOfLast { it.isOperator() } + 1)
                 else
