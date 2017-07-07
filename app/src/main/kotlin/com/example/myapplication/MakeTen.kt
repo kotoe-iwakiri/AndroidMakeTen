@@ -5,23 +5,20 @@ object MakeTen {
     val operators = listOf("+", "-", "*", "/")
 
     fun canMake(a: Int, b: Int, c: Int, d: Int): Boolean {
-        val numPermutation = listOf(a, b, c, d).permutations().toList()
-        println("numPermutation.size = ${numPermutation.size}")
-        val orderPermutation = listOf(1, 2, 3).permutations().toList()
-        println("orderPermutation.size = ${orderPermutation.size}")
-        val operatorPermutation = operatorPermutation
-        println("operatorPermutation.size = ${operatorPermutation.size}")
         val rpns =
-                numPermutation.flatMap { nums ->
-                    orderPermutation.flatMap { orders ->
-                        operatorPermutation.map { op ->
+                numPermutation(a, b, c, d).flatMap { nums ->
+                    orderPermutation().flatMap { orders ->
+                        operatorPermutation().map { op ->
                             makeRpn(nums, orders, op)
                         }
                     }
                 }.distinct()
-        println("rpns.size = ${rpns.size}")
-        return rpns.asSequence().any { solveRpn(it) == Rational(10, 1) }
+        return rpns.any { solveRpn(it) == Rational(10, 1) }
     }
+
+    fun numPermutation(a: Int, b: Int, c: Int, d: Int): Sequence<List<Int>> = listOf(a, b, c, d).permutations()
+    fun orderPermutation(): Sequence<List<Int>> = listOf(1, 2, 3).permutations()
+    fun operatorPermutation(): Sequence<List<String>> = operatorPermutation.asSequence()
 
     fun <T : Any> List<T>.permutations(): Sequence<List<T>> = if (size == 1) sequenceOf(this) else {
         val iterator = iterator()
